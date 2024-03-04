@@ -39,26 +39,29 @@
    for some strange reason are not recognized by 'vectors' in Microsoft Visual C++ 5
    when they are part of a namespace!!! There was no such problem with GNU's g++ compiler.
 */
-enum BracketMode   { NONE_MODE, ATTACH_MODE, BREAK_MODE};
-enum BracketType   { NULL_TYPE = 0,
-                     COMMAND_TYPE = 2,
+enum BracketMode {
+    NONE_MODE, ATTACH_MODE, BREAK_MODE
+};
+enum BracketType {
+    NULL_TYPE = 0, COMMAND_TYPE = 2,
 
-                     SINGLE_LINE_TYPE = 8};
+    SINGLE_LINE_TYPE = 8
+};
 
-void error(const char *why, const char* what);
+void error(const char *why, const char *what);
 
 #ifdef USES_NAMESPACE
 using namespace std;
 
-namespace astyle
-{
+namespace astyle {
 #endif
 
-class ASStreamIterator
-{
+    class ASStreamIterator {
     public:
         ASStreamIterator(std::istream *in);
+
         virtual ~ASStreamIterator();
+
         bool hasMoreLines() const;
 
         // Read the next line from the input stream. Returns the line read,
@@ -66,12 +69,11 @@ class ASStreamIterator
         std::string nextLine();
 
     private:
-        std::istream * inStream;
+        std::istream *inStream;
         int linecount;
-};
+    };
 
-class ASResource
-{
+    class ASResource {
     public:
         static const string AS_IF, AS_ELSE;
         static const string AS_WHILE;
@@ -99,7 +101,7 @@ class ASResource
         static const string AS_PAREN_PAREN, AS_BLPAREN_BLPAREN;
         static const string AS_PLUS, AS_MINUS, AS_MULT, AS_EXP, AS_DIV, AS_MOD, AS_GR, AS_LS;
         static const string AS_NOT, AS_BIT_XOR, AS_BIT_OR, AS_BIT_AND, AS_BIT_NOT;
-        static const string AS_QUESTION, AS_COLON, AS_SEMICOLON, AS_COMMA;
+        static const string AS_QUESTION, AS_COLON, AS_SEMICOLON, AS_COMMA, AS_TAG;
 
         static const string AS_BEGIN, AS_GENERATE, AS_CASE, AS_CASEX, AS_CASEZ, AS_FUNCTION, AS_FORK, AS_TABLE, AS_TASK, AS_SPECIFY, AS_PRIMITIVE, AS_MODULE; // add verilog
 
@@ -107,73 +109,100 @@ class ASResource
 
         static const string AS_INITIAL, AS_FOREVER, AS_ALWAYS, AS_REPEAT;
 
+
+
+        static const string AS_PARAM_DEC_START;
+        static const string AS_PAREN_CLOSE;
+        static const string AS_PAREN;
+
+
     public:
 
         static const char PREPROCESSOR_CHAR;
 
-};
+    };
 
-class ASBeautifier : protected ASResource
-{
+    class ASBeautifier : protected ASResource {
     public:
         ASBeautifier();
+
         virtual ~ASBeautifier();
-        virtual void init(ASStreamIterator* iter); // pointer to dynamically created iterator.
+
+        virtual void init(ASStreamIterator *iter); // pointer to dynamically created iterator.
         virtual void init();
+
         virtual bool hasMoreLines() const;
+
         virtual string nextLine();
+
         virtual string beautify(const string &line);
+
         void setTabIndentation(int length = 4, bool forceTabs = false);
 
         void setSpaceIndentation(int length = 4);
+
         void setMaxInStatementIndentLength(int max);
+
         void setMinConditionalIndentLength(int min);
 
         void setSwitchIndent(bool state);
+
         void setCaseIndent(bool state);
+
         void setBracketIndent(bool state);
+
         void setBlockIndent(bool state);
+
         void setLabelIndent(bool state);
+
         void setEmptyLineFill(bool state);
+
         void setPreprocessorIndent(bool state);
 
     protected:
         int getNextProgramCharDistance(const string &line, int i);
+
         bool isLegalNameChar(char ch) const;
 
         bool isInVerilogNum(const string &line, int i) const;
+
         bool isWhiteSpace(char ch) const;
-        const string *findHeader(const string &line, int i,
-                                 const vector<const string*> &possibleHeaders,
-                                 bool checkBoundry = true);
+
+        const string *
+        findHeader(const string &line, int i, const vector<const string *> &possibleHeaders, bool checkBoundry = true);
+
         string trim(const string &str);
-        int indexOf(vector<const string*> &container, const string *element);
+
+        int indexOf(vector<const string *> &container, const string *element);
 
     private:
         ASBeautifier(const ASBeautifier &copy);
-        void operator=(ASBeautifier&); // not to be implemented
+
+        void operator=(ASBeautifier &); // not to be implemented
 
         void initStatic();
-        void registerInStatementIndent(const string &line, int i, int spaceTabCount,
-                                       int minIndent, bool updateParenStack);
+
+        void
+        registerInStatementIndent(const string &line, int i, int spaceTabCount, int minIndent, bool updateParenStack);
+
         string preLineWS(int spaceTabCount, int tabCount);
 
-        static vector<const string*> headers;
-        static vector<const string*> nonParenHeaders;
-        static vector<const string*> preprocessorHeaders;
+        static vector<const string *> headers;
+        static vector<const string *> nonParenHeaders;
+        static vector<const string *> preprocessorHeaders;
 
-        static vector<const string*> verilogBlockBegin;
+        static vector<const string *> verilogBlockBegin;
 
-        static vector<const string*> verilogBlockEnd;
+        static vector<const string *> verilogBlockEnd;
         static bool calledInitStatic;
 
         ASStreamIterator *sourceIterator;
-        vector<ASBeautifier*> *waitingBeautifierStack;
-        vector<ASBeautifier*> *activeBeautifierStack;
+        vector<ASBeautifier *> *waitingBeautifierStack;
+        vector<ASBeautifier *> *activeBeautifierStack;
         vector<int> *waitingBeautifierStackLengthStack;
         vector<int> *activeBeautifierStackLengthStack;
-        vector<const string*> *headerStack;
-        vector< vector<const string*>* > *tempStacks;
+        vector<const string *> *headerStack;
+        vector<vector<const string *> *> *tempStacks;
         vector<int> *blockParenDepthStack;
 
         vector<int> *inStatementIndentStack;
@@ -186,7 +215,7 @@ class ASBeautifier : protected ASResource
 
         bool isInQuote;
         bool isInComment;
-        int  isInCase;
+        int isInCase;
         bool isInQuestion;
         bool isInStatement;
         bool isInHeader;
@@ -219,68 +248,97 @@ class ASBeautifier : protected ASResource
         bool backslashEndsPrevLine;
         int defineTabCount;
 
-};
+    };
 
-class ASFormatter : public ASBeautifier
-{
+    class ASFormatter : public ASBeautifier {
     public:
         ASFormatter();
+
         virtual ~ASFormatter();
-        virtual void init(ASStreamIterator* iter);
+
+        virtual void init(ASStreamIterator *iter);
+
         virtual bool hasMoreLines() const;
+
         virtual string nextLine();
+
         void setBracketFormatMode(BracketMode mode);
+
         void setOperatorPaddingMode(bool mode);
+
         void setParenthesisPaddingMode(bool mode);
 
         void setBlockPaddingMode(bool mode);
+
         void setBreakOneLineBlocksMode(bool state);
+
         void setSingleStatementsMode(bool state);
+
         void setTabSpaceConversionMode(bool state);
+
         void setBreakBlocksMode(bool state);
+
         void setBreakClosingHeaderBlocksMode(bool state);
+
         void setBreakElseIfsMode(bool state);
 
     private:
         void ASformatter(ASFormatter &copy); // not to be imlpemented
-        void operator=(ASFormatter&); // not to be implemented
+        void operator=(ASFormatter &); // not to be implemented
         void staticInit();
+
         bool isFormattingEnabled() const;
+
         void goForward(int i);
+
         bool getNextChar();
+
         char peekNextChar(bool count_white_space = false) const;
+
         bool isBeforeComment() const;
+
         void trimNewLine();
+
         BracketType getBracketType() const;
+
         bool isUrinaryMinus() const;
+
         bool isInExponent() const;
+
         bool isOneLineBlockReached() const;
+
         void appendChar(char ch, bool canBreakLine = true);
+
         void appendCurrentChar(bool canBreakLine = true);
 
         void appendBlock(bool canBreakLine = true);
-        void appendSequence(const string &sequence, bool canBreakLine = true);
-        void appendSpacePad();
-        void breakLine();
-        inline bool isSequenceReached(const string &sequence) const;
-        const string *findHeader(const vector<const string*> &headers, bool checkBoundry = true);
 
-        static vector<const string*> headers;
-        static vector<const string*> nonParenHeaders;
+        void appendSequence(const string &sequence, bool canBreakLine = true);
+
+        void appendSpacePad();
+
+        void breakLine();
+
+        inline bool isSequenceReached(const string &sequence) const;
+
+        const string *findHeader(const vector<const string *> &headers, bool checkBoundry = true);
+
+        static vector<const string *> headers;
+        static vector<const string *> nonParenHeaders;
 
         //used for verilog
-        static vector<const string*> preprocessorHeaders;
+        static vector<const string *> preprocessorHeaders;
 
-        static vector<const string*> preCommandHeaders;
-        static vector<const string*> operators;
-        static vector<const string*> verilogBlockBegin;
+        static vector<const string *> preCommandHeaders;
+        static vector<const string *> operators;
+        static vector<const string *> verilogBlockBegin;
 
-        static vector<const string*> verilogBlockEnd;
+        static vector<const string *> verilogBlockEnd;
 
         static bool calledInitStatic;
 
         ASStreamIterator *sourceIterator;
-        vector<const string*> *preBracketHeaderStack;
+        vector<const string *> *preBracketHeaderStack;
         vector<int> *parenStack;
         string readyFormattedLine;
         string currentLine;
@@ -347,7 +405,50 @@ class ASFormatter : public ASBeautifier
 
         const string *vBlockEnd;
 
-};
+    };
+
+    typedef struct {
+        string token;
+        size_t index;
+    } token_t;
+
+    class ModuleDeclarationFormatter : protected ASResource {
+    public:
+        explicit ModuleDeclarationFormatter(ASStreamIterator *iter);
+
+        ~ModuleDeclarationFormatter();
+
+        void format(ostream *out);
+
+        void format();
+
+    private:
+        ASStreamIterator *sourceIterator;
+        string currentLineBuffer;
+        string currentTokenBuffer;
+        bool isInMultiLineComment;
+        bool isInModuleParamSection;
+        bool isInModulePortSection;
+        bool isInModuleNameSection;
+        size_t currentIndex;
+        size_t prevIndex;
+
+        bool getNextToken();
+
+        bool getNextLine();
+
+        void addSequence(ostream *out);
+
+        void breakLine(ostream *out);
+
+        void addLineIndent(int num);
+
+        void addLineIndent(ostream *out, int num);
+
+        void addLineIndent(ostream *out);
+
+        void addIndent(ostream *out, int num);
+    };
 
 #ifdef USES_NAMESPACE
 }
